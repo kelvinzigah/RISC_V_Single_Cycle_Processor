@@ -1,52 +1,92 @@
-#  RISC_V_Single_Cycle_Processor
+# Single-Core RISC-V CPU on Altera DE10-Nano
 
-My implementation of the 32-bit RISC-V Single Cycle Processor with a Custom RV321 Instruction Set
-
-Reference Textbook:
-' Digital Design and Computer Architecture: RISC-V Edition by Sarah L. Harris and David Harris '
+My implementation of a single-core RISC-V CPU on an Altera DE10-Nano FPGA as part of the IEEE Student Branch at Concordia University.
 
 
+**Reference Textbook :** *Digital Design and Computer Architecture: RISC-V Edition* by Sarah L. Harris and David Harris.*
 
+## Architecture Diagram
 
+![Single-Core CPU Design](CPU_diagram.png)
+
+## Instructions Implemented
+
+|Type       | Instructions Implemented  |
+|------------------|----------------|----------------------------------------------|
+|R - Type |ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND |
+|I - Type | ADDI, ANDI, SLLI, SRLI, SRAI, SLTI, LW, JALR | 
+|B- Type  | BEQ, BNE, BLT, BGE, BLT, BLTU, BGEU   |
+|U- Type | LUI, AUIPC | 
+|J-Type  | JAL | 
+
+## Tools Used
+
+- **Hardware:** Altera DE10-Nano FPGA
+- **Languages:** SystemVerilog (design and testbenches)
+- **Software:** Quartus Prime (synthesis), ModelSim (simulation), Git (version control)
 
 ## Directory Structure
 
+<details>
+<summary>Click to expand!</summary>
 
+```
+.
+├── CPU_diagram.png
+├── README.markdown
 ├── rtl
-│   ├── ALU_decoder.v
-│   ├── ALU_Mux.v
-│   ├── ALU.v
-│   ├── ALU.v~
-│   ├── Control_Unit.v
-│   ├── Core_Datapath.v
-│   ├── Data_Memory.v
-│   ├── Extend.v
-│   ├── Instruction_Memory.v
-│   ├── Main_Decoder.v
-│   ├── PC_Mux.v
-│   ├── PC_Plus_4.v
-│   ├── PC_Target.v
-│   ├── PC.v
-│   ├── Register_File.v
-│   ├── Result_Mux.v
-│   ├── Single_Cycle_Core.v
-│   └── Single_Cycle_Top.v
+│   ├── ALU
+│   │   ├── ALUMux.sv
+│   │   ├── ALU.sv
+│   │   └── ALU_tb.sv
+│   ├── ControlUnit
+│   │   ├── ALUDecoder.sv
+│   │   ├── ControlUnit.sv
+│   │   └── MainDecoder.sv
+│   ├── core_top
+│   │   ├── single_core.sv
+│   │   └── SingleCoreTop.sv
+│   ├── datapath
+│   │   ├── datapath.sv
+│   │   └── ResultSrcMux.sv
+│   ├── Extend
+│   │   └── Extend.sv
+│   ├── memory
+│   │   ├── datamemory
+│   │   │   └── datamem.sv
+│   │   └── instructionmemory
+│   │       └── instrutionmem.sv
+│   ├── PC
+│   │   ├── PCNextMux.sv
+│   │   ├── PCPlus4.sv
+│   │   ├── PC.sv
+│   │   └── PCTarget.sv
+│   └── register_file
+│       └── regfile.sv
 └── tb
-    ├── ALU_Decoder_tb.v
-    ├── ALU_Mux_tb.v
-    ├── ALU_tb.v
-    ├── Control_Unit_tb.v
-    ├── Core_Datapath_tb.v
-    ├── Data_Memory_tb.v
-    ├── Extend_tb.v
-    ├── Instruction_Memory_tb.v
-    ├── Main_Decoder_tb.v
-    ├── PC_Mux_tb.v
-    ├── PCPlus4_tb.v
-    ├── PC_Target_tb.v
-    ├── PC_tb.v
-    ├── Register_File_tb.v
-    ├── Register_tb.v
-    ├── Result_Mux_tb.v
-    ├── Single_Cycle_Core_tb.v
-    └── Single_Cycle_TB.v
+    ├── ALU
+    │   ├── ALUMux_tb.sv
+    │   └── ALU_tb.sv
+    ├── ControlUnit
+    │   └── ControlUnit_tb.sv
+    ├── core_top
+    │   ├── single_core_tb.sv
+    │   └── SingleCoreTop_tb.sv
+    ├── datapath
+    │   └── datapath_tb.sv
+    ├── Extend
+    │   └── Extend_tb.sv
+    ├── memory
+    │   ├── datamemory
+    │   │   └── datamem.sv
+    │   └── instructionmemory
+    │       └── instructionmem_tb.sv
+    ├── PC
+    │   └── PC_tb.sv
+    └── register_file
+        └── regfile_tb.sv
+
+
+
+```
+</details>
