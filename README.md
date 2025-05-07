@@ -4,6 +4,12 @@ My implementation of the 32-bit RISC-V Single Cycle Processor with a Custom RV32
 
 
 
+
+
+
+
+## Directory Structure
+
 ├── LICENSE
 ├── README.md
 ├── rtl
