@@ -2,7 +2,8 @@
 
 My implementation of the 32-bit RISC-V Single Cycle Processor with a Custom RV321 Instruction Set
 
-
+Reference Textbook:
+> Digital Design and Computer Architecture: RISC-V Edition by Sarah L. Harris and David Harris
 
 
 
@@ -10,8 +11,7 @@ My implementation of the 32-bit RISC-V Single Cycle Processor with a Custom RV32
 
 ## Directory Structure
 
-├── LICENSE
-├── README.md
+
 ├── rtl
 │   ├── ALU_decoder.v
 │   ├── ALU_Mux.v
