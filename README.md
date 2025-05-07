@@ -3,7 +3,7 @@
 My implementation of a single-core RISC-V CPU on an Altera DE10-Nano FPGA as part of the IEEE Student Branch at Concordia University.
 
 
-**Reference Textbook :** *Digital Design and Computer Architecture: RISC-V Edition* by Sarah L. Harris and David Harris.*
+**Reference Textbook :** *Digital Design and Computer Architecture: RISC-V Edition* by Sarah L. Harris and David Harris.
 
 ## Architecture Diagram
 
@@ -11,13 +11,13 @@ My implementation of a single-core RISC-V CPU on an Altera DE10-Nano FPGA as par
 
 ## Instructions Implemented
 
-|Type       | Instructions Implemented  |
-|------------------|----------------||
-|R - Type |ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND |
-|I - Type | ADDI, ANDI, SLLI, SRLI, SRAI, SLTI, LW, JALR | 
-|B- Type  | BEQ, BNE, BLT, BGE, BLT, BLTU, BGEU   |
-|U- Type | LUI, AUIPC | 
-|J-Type  | JAL | 
+| Type    | Instructions Implemented         |
+|---------|-----------------------------------|
+| R-Type  | ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND |
+| I-Type  | ADDI, ANDI, SLLI, SRLI, SRAI, SLTI, LW, JALR    |
+| B-Type  | BEQ, BNE, BLT, BGE, BLTU, BGEU                  |
+| U-Type  | LUI, AUIPC                                      |
+| J-Type  | JAL                                             |
 
 ## Tools Used
 
