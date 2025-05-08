@@ -1,6 +1,6 @@
 # Single-Core RISC-V CPU on Altera DE10-Nano
 
-My implementation of a single-core RISC-V CPU on an Altera DE10-Nano FPGA as part of the IEEE Student Branch at Concordia University.
+My implementation of a single-core RISC-V CPU on an Altera DE10-Nano FPGA as part of the IEEE Student Branch Multicore RISC-V CPU Project at Concordia University.
 
 
 **Reference Textbook :** *Digital Design and Computer Architecture: RISC-V Edition* by Sarah L. Harris and David Harris.
