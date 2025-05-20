@@ -7,29 +7,43 @@ module single_core(
 	output logic [31:0] PC,
 	output logic [31:0] ALURes,
 	output logic MemWrite,
-	output logic [31:0] WriteData
+	output logic [31:0] WriteData,
+	
+	output logic DataType,
+	output logic [1:0] DataSize
 
 );
 
 
 //wires
 wire ZeroFlag;
+wire NegativeFlag;
+wire CarryFlag;
+wire OverflowFlag;
 wire RegWrite;
 wire ALUSrc;
 wire [1:0] PCSrc;
-wire [2:0] ALUControl;
-wire [1:0] ResultSrc;
+wire [3:0] ALUControl;
+wire [2:0] ResultSrc;
 wire [2:0] ImmSrc;
+//wire DataType;
+//wire [1:0] DataSize;
 
-wire [31:0] WritetoReg;
+
 
 
 ControlUnit Control(
 
 	.ZeroFlag(ZeroFlag),
+	.NegativeFlag(NegativeFlag),
+	.CarryFlag(CarryFlag),
+	.OverflowFlag(OverflowFlag),
 	.op(Instruction[6:0]),
 	.func7_5(Instruction[30]),
 	.func3(Instruction[14:12]),
+
+	.DataType(DataType),
+	.DataSize(DataSize),
 
 	.RegWrite(RegWrite),
 	.ALUSrc(ALUSrc),
@@ -51,12 +65,16 @@ core_datapath path(
 	.ALUSrc(ALUSrc),
 	.MemWrite(MemWrite),
 	.ALUControl(ALUControl),
-	.ALURes(ALURes),
-
-	.PC(PC),
 	.Instruction(Instruction),
-	.WritetoReg(WritetoReg),
-	.ZeroFlag(ZeroFlag)
+	.ReadData(ReadData),
+	
+	.ALUResult(ALURes),
+	.PC(PC),
+	.WriteData(WriteData),
+	.ZeroFlag(ZeroFlag),
+	.NegativeFlag(NegativeFlag),
+	.CarryFlag(CarryFlag),
+	.OverflowFlag(OverflowFlag)
 
 
 

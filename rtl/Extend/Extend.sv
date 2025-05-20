@@ -1,6 +1,6 @@
 	//======================== IMMEDIATE EXTENDER MODULE ========================//
 module ImmExt(
-    input logic [24:0] ImmExt_In,
+    input logic [24:0] ImmExt_In, //[31:7]
     input logic [2:0] ImmSrc,
     output logic [31:0] ImmExt_Out
 );
@@ -21,6 +21,8 @@ module ImmExt(
                 ImmExt_Out = {ImmExt[31:12], 12'b000000000000};
             3'b100: // Type - J
               ImmExt_Out = {{12{ImmExt[31]}},  ImmExt[19:12], ImmExt[20], ImmExt[30:21], 1'b0};
+	    3'b101: //Type - I (SRA)
+	       ImmExt_Out = {{27{ImmExt[31]}}, ImmExt[24:20]};
             default:
                 ImmExt_Out = 32'b0;
         endcase

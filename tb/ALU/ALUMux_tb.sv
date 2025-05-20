@@ -5,7 +5,7 @@ module ALUMux_tb;
 
 logic [31:0] RegOperand;
 logic [31:0] ImmExt;
-logic [31:0] ALUSrc;
+logic  ALUSrc;
 logic [31:0] SrcB;
 
 ALUMux ALUMuxdut(

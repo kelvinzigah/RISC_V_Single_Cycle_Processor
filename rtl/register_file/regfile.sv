@@ -31,10 +31,12 @@ always_ff @( posedge clk )begin
 //writing to the register
     else if(write_en && write_ad !== 5'd0) register[write_ad] <= data_in;
 
-	
-$monitor(" register= %h gets : %h", write_ad , data_in);
-	
 end
+
+always @(*) begin
+	$monitor(" register= %h gets : %h", write_ad , data_in);
+end
+	
 
 
 //reading is done asynchronously

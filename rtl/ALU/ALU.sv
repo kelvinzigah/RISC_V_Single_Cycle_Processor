@@ -1,28 +1,49 @@
 module ALU (
 input logic signed [31:0] input_A, 
 input logic signed [31:0]input_B,  
-input logic [2:0] ALU_Control, 
-output logic signed [31 : 0] result,
-output logic Zero_Flag 
+input logic [3:0] ALU_Control, 
+
+
+output logic signed [31:0] result,
+//flags
+output logic Zero_Flag,
+output logic Overflow_Flag,
+output logic Negative_Flag,
+output logic Carry_Flag
 );
 
   // Declare signals
-  logic [31:0] Sum, diff, AND_result, OR_result, XOR_result, ShiftL_result, ShiftR_result;
-  logic Cout, adder_Cout, sub_Cout, Overflow_Flag;
-  logic SLT;
-  
-  //change if needed
-  logic adder_Cin = 0;
+  logic [31:0] AND_result, OR_result, XOR_result, SLL_result, SRL_result, SLT_result, SRA_result, SLTU_result;
+	
+  //add and sub result
+   logic [32:0] wide_sum;
 
 
-  
-  
-  //adder
-  assign {adder_Cout, Sum} = input_A + input_B + adder_Cin;
+  //operation codes
+localparam logic [3:0]
+    ADDop  = 4'b0000,
+    SUBop  = 4'b0001,
+    ANDop  = 4'b0010,
+    ORop   = 4'b0011,
+    XORop  = 4'b0100,
+    SLLop  = 4'b0101,
+    SRLop  = 4'b0110,
+    SLTop  = 4'b0111,
+    SLTUop = 4'b1000,
+    SRAop  = 4'b1001;
+	
   
 
-  //subtracter
-  assign {sub_Cout , diff} = input_A - input_B ;
+
+  //computing wide sum for add/sub
+
+always_comb begin
+	case(ALU_Control)
+		ADDop: wide_sum = {1'b0, input_A} + {1'b0, input_B};
+		SUBop: wide_sum = {1'b0, input_A} + {1'b0, ~input_B} +1;
+		default: wide_sum = 32'h0;
+	endcase
+end
   
   
   
@@ -30,48 +51,48 @@ output logic Zero_Flag
   assign AND_result = input_A & input_B;
   assign OR_result  = input_A | input_B;
   assign XOR_result = input_A ^ input_B;
-  assign ShiftL_result = input_A << input_B[4:0];
-  assign ShiftR_result = input_A >> input_B[4:0];
+  assign SLL_result = input_A << input_B[4:0];
+  assign SRL_result = input_A >> input_B[4:0];
+  assign SLT_result = (input_A < input_B) ? 32'b1 : 32'b0;
+  assign SLTU_result = ($unsigned(input_A) < $unsigned(input_B)) ? 32'b1 : 32'b0;
+  assign SRA_result = $signed(input_A) >>> input_B[4:0]; // arithmetic right
   
-   // SLT operation
-  assign SLT = input_A < input_B;
-
-  // Overflow flag logic
-  assign Overflow_Flag = (ALU_Control == 3'b000) ? 
-                         ((input_A[31] == input_B[31]) && (Sum[31] != input_A[31])) :
-                         (ALU_Control == 3'b001) ? 
-                         ((input_A[31] != input_B[31]) && (diff[31] != input_A[31])) : 
-                         1'b0;
-
  
 
-  // Carry-out logic (MUX)
-  assign Cout = (ALU_Control == 3'b000) ? adder_Cout :
-                (ALU_Control == 3'b001) ? sub_Cout : 
-                1'b0;
+  // Overflow flag logic
+  assign Overflow_Flag = (ALU_Control == ADDop) ? 
+                         ((input_A[31] == input_B[31]) && (wide_sum[31] != input_A[31])) :
+                         (ALU_Control == SUBop) ? 
+                         ((input_A[31] != input_B[31]) && (wide_sum[31] != input_A[31])) : 
+                         1'b0;
 
-  // Zero flag
+ //carry flag logic
+  assign Carry_Flag = (ALU_Control == ADDop || ALU_Control == SUBop) ? wide_sum[32] : 1'b0;
+
+
+ // Zero flag
   assign Zero_Flag = (result == 0);
 
-  
-  
-  
-  
-  
+// Negative flag
+  assign Negative_Flag = result[31];
+
+ 
   
   
   // ALU operation selection
   always_comb begin
-    case (ALU_Control)
-      3'b000: result = Sum;
-      3'b001: result = diff;
-      3'b010: result = AND_result;
-      3'b011: result = OR_result;
-      3'b100: result = XOR_result;
-      3'b101: result = ShiftL_result; 
-      3'b110: result = ShiftR_result; 
-      3'b111: result = { {31{1'b0}}, SLT };  
-      default: result = 0;
+    unique case (ALU_Control)
+      ADDop:  result = wide_sum[31:0];
+      SUBop:  result = wide_sum[31:0];
+      ANDop:  result = AND_result;
+      ORop:   result = OR_result;
+      XORop:  result = XOR_result;
+      SLLop:  result = SLL_result;
+      SRLop:  result = SRL_result;
+      SLTop:  result = SLT_result;
+      SLTUop: result = SLTU_result;
+      SRAop:  result = SRA_result;
+      default: result = '0;
     endcase
   end
 

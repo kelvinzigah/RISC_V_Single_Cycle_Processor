@@ -7,12 +7,14 @@ module single_core_tb;
 	logic clk = 0;
 	logic reset;
 	logic [31:0] Instruction;
-	logic [31:0] ReadData;
+	logic [31:0] ReadData; //<= read from mem(output)
 
 	logic [31:0] PC;
 	logic [31:0] ALURes;
 	logic MemWrite;
-	logic [31:0] WriteData;
+	logic [31:0] WriteData; //<= write to mem(input)
+	logic DataType;
+	logic [1:0] DataSize;
 
 
 single_core coredut(
@@ -24,8 +26,9 @@ single_core coredut(
 	.PC(PC),
 	.ALURes(ALURes),
 	.MemWrite(MemWrite),
-	.WriteData(WriteData)
-
+	.WriteData(WriteData),
+	.DataType(DataType),
+	.DataSize(DataSize)
 );
 
 always #5 clk = ~clk;
@@ -51,17 +54,12 @@ initial begin
 	ReadData = 32'h00000000;
 	#10;
 	reset = 0;
-	//Instruction = 32'h6AE01337; // LUI x6,0x6AE01000
+	Instruction = 32'h00080237; // LUI x4, 0x00000080 
 	#10;
-	Instruction = 32'h6AE013B7;   // LUI x7,0x6AE01000
+	Instruction = 32'h06401423; //SB x4, 0x34(x0)
 	#10;
-	//Instruction = 32'hDEADB437;   // LUI x8,0xDEADB000
-	//#10;
-	//Instruction = 32'h02830863;  // beq x6, x8, 24
-	//#10;
-	//Instruction = 32'h02730863;  // beq x6, x7, 24
-	//#10;
-
+	Instruction = 32'h03404283; //LBU x5, 0x34(x0)
+	#10;
 
 
 

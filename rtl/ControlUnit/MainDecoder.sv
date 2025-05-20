@@ -1,63 +1,112 @@
-module MainDecoder( 
-input logic ZeroFlag, 
-input logic [6:0] op ,
+module MainDecoder(
+  input  logic        ZeroFlag,
+  input  logic        NegativeFlag,
+  input  logic        CarryFlag,
+  input  logic        OverflowFlag,
 
-output logic RegWrite, 
-output logic ALUSrc,
-output logic MemWrite, 
-output logic Branch,
-output logic Jump, 
-output logic [1:0] ResultSrc, 
-output logic [1:0] PCSrc,
-output logic [1:0] ALUop, 
-output logic [2:0] ImmSrc
+  input  logic [2:0]  func3,
+  input  logic [6:0]  op,
 
+  output logic        DataType,
+  output logic [1:0]  DataSize,
+
+  output logic        RegWrite,
+  output logic        ALUSrc,
+  output logic        MemWrite,
+  output logic        Branch,
+  output logic        Jump,
+  output logic [2:0]  ResultSrc,
+  output logic [1:0]  PCSrc,
+  output logic [1:0]  ALUop,
+  output logic [2:0]  ImmSrc
 );
 
+  // 16‑bit control word: { RegWrite, ImmSrc[2:0], ALUSrc, MemWrite, ResultSrc[2:0],
+  //                         Branch, ALUop[1:0], Jump, DataType, DataSize[1:0] }
+  logic [15:0] maincontrol;
+  assign {
+    RegWrite,
+    ImmSrc,
+    ALUSrc,
+    MemWrite,
+    ResultSrc,
+    Branch,
+    ALUop,
+    Jump,
+    DataType,
+    DataSize
+  } = maincontrol;
 
+  logic [1:0] PCSrc_int;
 
- //input logic [6:0] op, input logic ZeroFlag,
-//output logic RegWrite, ALUSrc, MemWrite, Branch, Jump, PCSrc
-//output logic [1:0]  ResultSrc, AluOp, output logic [2:0] ImmSrc
+  always_comb begin
+    // Default:
+    maincontrol = 16'b0;
 
-logic [11:0] maincontrol;
-assign {RegWrite, ImmSrc, ALUSrc, MemWrite, ResultSrc, Branch , ALUop, Jump} = maincontrol;
+    case (op)
+      7'b0000011: begin // loads
+        unique case (func3)
+          3'b000: maincontrol = 16'b1_000_1_0_001_0_00_0_0_10; // lb, 
+          3'b001: maincontrol = 16'b1_000_1_0_001_0_00_0_0_01; // lh
+          3'b010: maincontrol = 16'b1_000_1_0_001_0_00_0_0_00; // lw
+          3'b100: maincontrol = 16'b1_000_1_0_001_0_00_1_1_10; // lbu
+          3'b101: maincontrol = 16'b1_000_1_0_001_0_00_1_0_01; // lhu
+          default: maincontrol = 16'b0;
+        endcase
+      end
 
-logic [1:0] PCSrc_internal;
+      7'b0100011: begin // stores
+        unique case (func3)
+          3'b000: maincontrol = 16'b0_001_1_1_000_0_00_0_0_10; // sb
+          3'b001: maincontrol = 16'b0_001_1_1_000_0_00_0_0_01; // sh
+          3'b010: maincontrol = 16'b0_001_1_1_000_0_00_0_0_00; // sw
+          default: maincontrol = 16'b0;
+        endcase
+      end
 
+      7'b0110011: // R‑type
+        maincontrol = 16'b1_000_0_0_000_0_10_0_0_00;
 
-always_comb 
-begin
-	case(op)
-		//op = RegWrite(1)_ImmSrc(3)_AluSrc(1)_MemWrite(1)_ResultSrc(2)_Branch(1)_AluOp(2)_Jump(1)
-	
-	
-		7'b0000011: maincontrol = 12'b1_000_1_0_01_0_00_0; //lw
-		7'b0100011: maincontrol = 12'b0_001_1_1_00_0_00_0; //sw Result Src unused; xx=>00
-		7'b0110011: maincontrol = 12'b1_000_0_0_00_0_10_0; //R-type ImmSrc unused; xxx=>000
-		7'b1100011: maincontrol = 12'b0_010_0_0_00_1_01_0; //B-type Result Src unused; xx=>00
-		7'b0010011: maincontrol = 12'b1_000_1_0_00_0_10_0; //I-type Alu
-		7'b1101111: maincontrol = 12'b1_100_0_0_10_0_00_1; //jal ALuSrc, Aluop unused : x => 0 , xx=> 00
-		7'b1100111: maincontrol = 12'b1_000_1_0_10_0_00_1; //jalr connect alu result to pc
-		7'b0110111: maincontrol = 12'b1_011_0_0_11_0_00_0; //lui: increase range of resultsrc-mux and connect extend unit to it in datapath ALuSrc, Aluop unused : x => 0 , xx=> 00
-		7'b0000000: maincontrol = 12'b0_000_0_0_00_0_00_0;//reset
-		default : maincontrol = 12'b0_000_0_0_00_0_00_0;
-	
-	endcase
+      7'b1100011: // branches (BEQ, BNE, BLT, …)
+        maincontrol = 16'b0_010_0_0_000_1_01_0_0_00;
 
- //PCSRC
-	if(op == 7'b1100111 && Jump ) begin //jalr begin
-		PCSrc_internal = 2'b10; // PC <= ALU_out
-	end else if (Jump) begin //jal
-		PCSrc_internal = 2'b01; //PC <= PC + offset
-	end else if (Branch && ZeroFlag) begin//normal PCSrc logic
-		PCSrc_internal = 2'b01; //PC <= PC + offset
-	end else begin
-		PCSrc_internal = 2'b00; //PC <= PC + 4
-	end
+      7'b0010011: // I‑type ALU
+        maincontrol = 16'b1_000_1_0_000_0_10_0_0_00;
 
-end
+      7'b1101111: // JAL
+        maincontrol = 16'b1_100_0_0_010_0_00_1_0_00;
 
-assign PCSrc = PCSrc_internal;
+      7'b1100111: // JALR
+        maincontrol = 16'b1_000_1_0_010_0_00_1_0_00;
+
+      7'b0110111: // LUI
+        maincontrol = 16'b1_011_0_0_011_0_00_0_0_00;
+
+      7'b0010111: // AUIPC
+        maincontrol = 16'b1_011_0_0_100_0_00_0_0_00;
+
+      default:
+        maincontrol = 16'b0;
+    endcase
+
+    // PCSrc logic (including branches)
+    if      (op == 7'b1100111 && Jump)        PCSrc_int = 2'b10; // JALR
+    else if (op == 7'b1101111 && Jump)        PCSrc_int = 2'b01; // JAL
+    else if (op == 7'b1100011) begin          // conditional branch
+      unique case (func3)
+        3'b000: PCSrc_int = ZeroFlag    ? 2'b01 : 2'b00; // BEQ
+        3'b001: PCSrc_int = !ZeroFlag   ? 2'b01 : 2'b00; // BNE
+        3'b100: PCSrc_int = (NegativeFlag ^ OverflowFlag) ? 2'b01 : 2'b00; // BLT
+        3'b101: PCSrc_int = !(NegativeFlag ^ OverflowFlag)? 2'b01 : 2'b00; // BGE
+        3'b110: PCSrc_int = !CarryFlag   ? 2'b01 : 2'b00; // BLTU
+        3'b111: PCSrc_int = (CarryFlag & ~ZeroFlag)? 2'b01 : 2'b00; // BGEU
+        default: PCSrc_int = 2'b00;
+      endcase
+    end
+    else
+      PCSrc_int = 2'b00;
+  end
+
+  assign PCSrc = PCSrc_int;
 
 endmodule
