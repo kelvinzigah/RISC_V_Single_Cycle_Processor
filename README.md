@@ -21,7 +21,7 @@ My implementation of a single-core RISC-V CPU on an Altera DE10-Nano FPGA as par
 
 ## Tools Used
 
-- **Hardware:** Altera DE10-Nano FPGA
+- **Hardware:** Altera DE2115-Development FPGA
 - **Languages:** SystemVerilog (design and testbenches)
 - **Software:** Quartus Prime (synthesis), ModelSim (simulation), Git (version control)
 
